@@ -7,13 +7,12 @@ import threading
 
 #creating a TCP socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# allow address reuse to fix problems with having to kill process
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # bind the socket only accessible to our machine and port 80
 s.bind(('localhost', 80))
 # listen sets the number of connection requests to queue up before refusing them
 s.listen(5)
-
-def testThread(name):
-    print('Thread {} running'.format(name))
 
 def connect():
     # set up variables on connection
@@ -27,8 +26,14 @@ def connect():
         # print out the userID and the input they gave
         print("{}".format(data))
 
+def main():
+   while True:
+       x= threading.Thread(target=connect)
+       x.start() 
 
 if __name__ == '__main__':
-    while True:
-        x= threading.Thread(target=connect)
-        x.start()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Closing')
+        sys.exit(1)
